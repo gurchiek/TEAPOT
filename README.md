@@ -3,7 +3,7 @@
 TEAPOT is an acronym for Track Everything Available, Predict Other Things
 This describes a general approach for sparse-signal tracking simulations.
 A simple example can be implemented from this code using OpenSim Moco.
-You will need to have already [setup] (https://simtk-confluence.stanford.edu:8443/display/OpenSim/Scripting+with+Matlab) use of the OpenSim API within MATLAB.
+You will need to have already [setup](https://simtk-confluence.stanford.edu:8443/display/OpenSim/Scripting+with+Matlab) use of the OpenSim API within MATLAB.
 
 ## Step 1
 Run s1_baselineTrackingSimulation.
