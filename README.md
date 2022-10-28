@@ -8,7 +8,7 @@ This generates a physically consistent 2D walking gait by tracking reference coo
 
 ## Step 2
 Run s2_predictiveSimulation.
-This is a predictive simulation of 2D walking gait. No reference data are tracked. Constraints are imposed to force bilateral symmetry as in the step 1 tracking simulation and to match the gait speed of the reference data. The only objective function term represented control effort: the sum of the squared control signals of all system actuators (including muscles). Once the simulation has finished, the function synchronizeWithBaseline is called to time-synchronize the predicitve simulation trajectory with the reference tracking simulation from step 1 (using the GRF signal). An OUTPUT_s2_* folder will be created in which simulation results are stored (all files ending with _unsynchronized* are not synchronized with the reference tracking simulation; else they are).
+This is a predictive simulation of 2D walking gait. No reference data are tracked. Constraints are imposed to force bilateral symmetry as in the step 1 tracking simulation and to match the gait speed of the reference data. The only objective function term represents control effort: the sum of the squared control signals of all system actuators (including muscles). Once the simulation has finished, the function synchronizeWithBaseline is called to time-synchronize the predicitve simulation trajectory with the reference tracking simulation from step 1 (using the GRF signal). An OUTPUT_s2_* folder will be created in which simulation results are stored (all files ending with _unsynchronized* are not synchronized with the reference tracking simulation; else they are).
 
 ## Step 3
 Run s3_trackOnlyRightShankIMU.
@@ -16,4 +16,4 @@ This is a tracking simulation where only (simulated) signals from a right shank-
 
 ## Step 4
 Run s4_compareSimulations.
-The compares the difference between simulations 2 and 3 with simulation 1. The results demonstrate the improved performance facilitated by tracking the signals from even a single IMU under ideal conditions (noise-/bias-free signals). Characterization of mechanical variables are generally better for the right leg (the side on which the sensor signals were tracked).
+This compares the difference between simulations 2 and 3 with simulation 1. The results demonstrate the improved performance facilitated by tracking the signals from even a single IMU under ideal conditions (noise-/bias-free signals). Characterization of mechanical variables are generally better for the right leg (the side on which the sensor signals were tracked).
