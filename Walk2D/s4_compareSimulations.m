@@ -54,8 +54,6 @@ for k = 1:n
     
     % filter grf
     dt = mean(diff(t));
-    r = bwfilt(r,3,1/dt,'low',4);
-    l = bwfilt(l,3,1/dt,'low',4);
     
     % resample
     vgrf.r(k,:) = interp1(linspace(0,100,length(r)),r,x,'pchip');
@@ -230,14 +228,14 @@ for s = 1:2
         plot(x,vgrf.(side{s})(k,:),'Color',color_spec(k,:),'LineStyle',linestyle{k},'LineWidth',linewidth(k));
         hold on
         
-        if k > 1; fprintf('%s %s vGRF RMSE: %f N\n',labels{k},cap(side{s}),rms(vgrf.(side{s})(k,:)-vgrf.(side{s})(1,:))); end
+        if k > 1; fprintf('%s %s vGRF RMSE: %f N\n',labels{k},side{s},rms(vgrf.(side{s})(k,:)-vgrf.(side{s})(1,:))); end
 
     end
 
     sp.Box = 'off';
     if s == 1; ylabel('Force (N)'); end
     xlabel('% Stride')
-    title([cap(side{s}) ' vGRF'])
+    title([side{s} ' vGRF'])
 
 end
    
@@ -282,12 +280,12 @@ for v = 1:length(varplot)
                 plot(x,muscle.(musc).(var)(k,:),'Color',color_spec(k,:),'LineStyle',linestyle{k},'LineWidth',linewidth(k));
                 hold on
 
-                if k > 1; fprintf('%s, %s %s, %s RMSE: %f %s\n',varplot{v},cap(side{s}),muscplot{m},labels{k},rms(muscle.(musc).(var)(k,:)-muscle.(musc).(var)(1,:)),units{v}); end
+                if k > 1; fprintf('%s, %s %s, %s RMSE: %f %s\n',varplot{v},side{s},muscplot{m},labels{k},rms(muscle.(musc).(var)(k,:)-muscle.(musc).(var)(1,:)),units{v}); end
 
             end
 
             sp.Box = 'off';
-            title([vtitle{v} ': ' cap(side{s}) ' ' mtitle{m}])
+            title([vtitle{v} ': ' side{s} ' ' mtitle{m}])
             if s == 1; ylabel(ylab{v}); end
             xlabel('% Stride')
 
@@ -324,14 +322,14 @@ for j = 1:length(jointplot)
             plot(x,moment.(thisMoment)(k,:),'Color',color_spec(k,:),'LineStyle',linestyle{k},'LineWidth',linewidth(k));
             hold on
             
-            if k > 1; fprintf('Joint moment, %s %s, %s RMSE: %f Nm\n',cap(side{s}),jointplot{j},labels{k},rms(moment.(thisMoment)(k,:)-moment.(thisMoment)(1,:))); end
+            if k > 1; fprintf('Joint moment, %s %s, %s RMSE: %f Nm\n',side{s},jointplot{j},labels{k},rms(moment.(thisMoment)(k,:)-moment.(thisMoment)(1,:))); end
 
         end
         
         sp.Box = 'off';
         if s == 1; ylabel('Moment (Nm)'); end
         xlabel('% Stride')
-        title([cap(side{s}) ' ' cap(jointplot{j})])
+        title([side{s} ' ' jointplot{j}])
 
     end
 
@@ -376,7 +374,7 @@ for v = 1:length(varplot)
                 discvar(k) = muscle.(musc).(var)(k); 
                 if k > 1
                     err = discvar(k) - discvar(1);
-                    fprintf('%s, %s %s, %s Error = %f J (%f%%)\n',varplot{v},cap(side{s}),muscplot{m},labels{k},err,err/discvar(1)*100)
+                    fprintf('%s, %s %s, %s Error = %f J (%f%%)\n',varplot{v},side{s},muscplot{m},labels{k},err,err/discvar(1)*100)
                 end
             end
             
@@ -394,7 +392,7 @@ for v = 1:length(varplot)
             sp.XAxis.TickLength = [0 0];
             sp.YAxis.LineWidth = 1.5;
             sp.XAxis.LineWidth = 1.5;
-            title([vtitle{v} ': ' cap(side{s}) ' ' mtitle{m}])
+            title([vtitle{v} ': ' side{s} ' ' mtitle{m}])
             ylabel(ylab{v})
             
         end
