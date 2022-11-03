@@ -129,7 +129,10 @@ solver.set_parallel(1);
 
 % initialize at with precomputed solution to same problem but with
 % setGuess('bounds') using 2021 iMac Apple M1 (see comments at beginning)
-solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo','s2_predictiveSimulation_2021iMacAppleM1_solution_stride.sto'));
+solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo',...
+                             'iMac2021M1',...
+                             'OUTPUT_s2_predictiveSimulation_20221103T115049',...
+                             's2_predictiveSimulation_20221103T115049_solution_stride.sto'));
 
 %% SOLVE
 
