@@ -4,6 +4,9 @@ function [solution_sync] = synchronizeWithBaseline(solution,grf,baselinedir)
 
 import org.opensim.modeling.*
 
+% clone unsynchronized solution and grf
+solution_sync = solution.clone;
+
 % get GRF at first instant of baseline solution, use this to sync
 baselinename = replace(baselinedir,'OUTPUT_','');
 baselinegrf = TimeSeriesTable(fullfile(baselinedir,[baselinename '_grf_step.sto']));
@@ -11,9 +14,7 @@ grfthresh = baselinegrf.getDependentColumn('ground_force_r_vy').get(0);
 
 % get instant closest to grfthresh
 [~,icontact] = min(abs(grf.getDependentColumn('ground_force_r_vy').getAsMat - grfthresh));
-
-% clone unsynchronized solution and grf
-solution_sync = solution.clone;
+if icontact == grf.getNumRows; return; end
 
 % adjust
 iunsync = icontact;
