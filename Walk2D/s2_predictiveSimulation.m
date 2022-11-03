@@ -8,6 +8,11 @@
 % pelvis_tx) from the example2DWalking predictive simulation script that
 % comes with the OpenSim download: https://github.com/opensim-org/opensim-core/blob/36f88ea00bf8fd76d18c6fb4f1e87f4e1801da60/Bindings/Java/Matlab/examples/Moco/example2DWalking/example2DWalking.m#L310
 
+% this solution initialized with a solution to the same problem computed
+% with a 2021 iMac Apple M1 initialized with setGuess('bounds'). I have not
+% been able to solve this problem (init with setGuess('bounds')) on my 2016
+% MacBook pro in <10000 iterations.
+
 clear
 close all
 clc
@@ -121,7 +126,10 @@ solver.set_optim_max_iterations(10000);
 solver.set_optim_hessian_approximation('limited-memory');
 solver.set_optim_finite_difference_scheme('forward'); % forward, central, or backward
 solver.set_parallel(1);
-solver.setGuess('bounds');
+
+% initialize at with precomputed solution to same problem but with
+% setGuess('bounds') using 2021 iMac Apple M1 (see comments at beginning)
+solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo','s2_predictiveSimulation_2021iMacAppleM1_solution_stride.sto'));
 
 %% SOLVE
 

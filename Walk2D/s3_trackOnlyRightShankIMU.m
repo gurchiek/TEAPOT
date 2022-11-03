@@ -4,21 +4,37 @@
 % 1. time bounds: assumes we can accurately get foot contact/off events
 %       from shank IMU
 % 2. accelerometer and gyroscope signals from shank
-% 3. pelvis displacement: assumes we can accurately get pelvis displacement
-%       from shank IMU: we assume stride symmetry, thus joint angles same
-%       at beginning and end, thus cartesian displacement of every segment
-%       is same as pelvis displacement, which could be calculated from IMU
-%       signals several ways (e.g., gait speed * stride time, shank
-%       tracking algos from pedestrian tracking, etc.)
-
-% initial guess is solution from predictive simulation
 
 % track shank accel/gyro signals generated from track all solution for full
 % stride, same simple bounds placed on this solution as for predictive sim,
 % symmetry was enforced on every state variable and control since
 % simulating a full stride
 
-% tracking mocap-tracking solution
+% an additional bound was placed on the pelvis_tx/value s.t. it must
+% translate between 0.5 and 2.0 m during the stride. The one that matters
+% here is the 0.5 lower bound to ensure the model steps and doesn't try to
+% just cycle in the leg in place. Note 0.5 is well below the actual: ~1.2 m
+
+% initial guess in this script is from a pre-computed solution to the
+% same problem with setGuess('bounds') (using a 2021 iMac Apple M1 chip) to
+% speed up the optimization. I have confirmed that the problem will solve
+% on a 2016 MacBook i7 chip using setGuess('bounds'), but it takes a while
+% (7348 iterations). Another option would be to reference the
+% s2_predictiveSimulation solution in setGuessFile(), however, although
+% that problem was initialized with setGuess('bounds') a constraint was
+% used to force speed-matching with the reference trajectory (s1 solution).
+% This is because the primary goal of this demo is to demonstrate the local
+% (close to the shank) and global (e.g., coordinates parameterizing joints
+% further from the right shank) benefits of tracking just the right shank
+% IMU signals over the predictive one; a proper comparison would be
+% speed-matched. In practice, one would initialize this problem not with
+% 'bounds', but with something 'close'. For example, one could have a
+% look-up of trajectories for pre-computed stride times (something readily
+% computed with wearables) from predictive simulations to initialize the
+% TEAPOT simulation, or for consecutive strides, use the previous stride.
+% Thus, the time to solve the problem here should not be interpreted as an
+% exact reflection of how this approach would work in practice. The main
+% idea here is proof of concept.
 
 clear
 close all
@@ -32,8 +48,6 @@ dateStr = datestr(datetime,'yyyymmddTHHMMSS');
 sessionName = [scriptName,'_',dateStr];
 trackDir = dir('OUTPUT_s1*');
 trackDir = trackDir.name;
-predictDir = dir('OUTPUT_s2*');
-predictDir = predictDir.name;
 
 % track IMUs from these frames
 trackTheseFrames = {'tibia_r'};
@@ -43,7 +57,7 @@ accelTrackingWeight = 10;
 gyroTrackingWeight = 10;
 controlEffortWeight = 1;
 
-% get initial/final time and pelvis_tx value
+% get initial/final time and initial pelvis_tx value
 trackSolutionFile = dir(fullfile(trackDir,'*solution_stride.sto'));
 trackSolutionFile = fullfile(trackDir,trackSolutionFile.name);
 trackSolutionTrajectory = MocoTrajectory(trackSolutionFile);
@@ -52,11 +66,6 @@ trackSolutionControls = trackSolutionTrajectory.exportToControlsTable;
 initialTime = trackSolutionStates.getIndependentColumn.get(0);
 finalTime = trackSolutionStates.getIndependentColumn.get(trackSolutionStates.getNumRows-1);
 initialPelvisX = trackSolutionStates.getDependentColumn('/jointset/groundPelvis/pelvis_tx/value').get(0);
-finalPelvisX = trackSolutionStates.getDependentColumn('/jointset/groundPelvis/pelvis_tx/value').get(trackSolutionStates.getNumRows-1);
-
-% get predictive solution file (used as initial guess here)
-predictSolutionFile = dir(fullfile(predictDir,'*solution_stride.sto'));
-predictSolutionFile = fullfile(predictDir,predictSolutionFile.name);
 
 %% MODEL
 
@@ -95,8 +104,6 @@ problem = study.updProblem;
 problem.setModel(model);
 
 %% SIMULATE IMU SIGNALS FROM REFERENCE TRAJECTORY
-
-% reference data
 
 % accel
 accelSignalPath = StdVectorString;
@@ -178,7 +185,7 @@ problem.addGoal(symmetryGoal);
 problem.setTimeBounds(initialTime, finalTime);
 
 % set bound
-problem.setStateInfo('/jointset/groundPelvis/pelvis_tx/value', MocoBounds(initialPelvisX-0.1,initialPelvisX+2.0), MocoInitialBounds(initialPelvisX));
+problem.setStateInfo('/jointset/groundPelvis/pelvis_tx/value', MocoBounds(initialPelvisX-0.1,initialPelvisX+2.0), MocoInitialBounds(initialPelvisX),MocoFinalBounds(initialPelvisX+0.5,initialPelvisX+2.0));
 
 % simple bounds from example2DWalking
 problem.setStateInfo('/jointset/groundPelvis/pelvis_tilt/value', [-20*pi/180, -10*pi/180]);
@@ -199,7 +206,7 @@ solver.resetProblem(problem);
 solver.set_optim_solver('ipopt');
 solver.set_verbosity(2); % 0 for none, 1 for moco only, 2 for casadi output
 solver.set_optim_ipopt_print_level(5);
-solver.set_num_mesh_intervals(100);
+solver.set_num_mesh_intervals(200);
 solver.set_transcription_scheme('hermite-simpson'); % trapezoidal or hermite-simpson
 solver.set_optim_convergence_tolerance(1e-3);
 solver.set_optim_constraint_tolerance(1e-3);
@@ -208,8 +215,9 @@ solver.set_optim_hessian_approximation('limited-memory');
 solver.set_optim_finite_difference_scheme('forward'); % forward, central, or backward
 solver.set_parallel(1);
 
-% initialize at with random
-solver.setGuessFile(predictSolutionFile);
+% initialize at with precomputed solution to same problem but with
+% setGuess('bounds') using 2021 iMac Apple M1 (see comments at beginning)
+solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo','s3_trackOnlyRightShankIMU_2021iMacAppleM1_solution_stride.sto'));
 
 %% SOLVE
 
