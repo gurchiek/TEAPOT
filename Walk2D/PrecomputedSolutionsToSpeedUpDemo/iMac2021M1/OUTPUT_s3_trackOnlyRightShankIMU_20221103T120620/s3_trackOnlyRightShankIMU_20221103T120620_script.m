@@ -215,9 +215,7 @@ solver.set_optim_hessian_approximation('limited-memory');
 solver.set_optim_finite_difference_scheme('forward'); % forward, central, or backward
 solver.set_parallel(1);
 
-% initialize at with precomputed solution to same problem but with
-% setGuess('bounds') using 2021 iMac Apple M1 (see comments at beginning)
-% solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo','s3_trackOnlyRightShankIMU_2021iMacAppleM1_solution_stride.sto'));
+% initialize with bounds
 solver.setGuess('bounds');
 
 %% SOLVE

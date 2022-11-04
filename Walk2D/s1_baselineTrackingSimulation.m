@@ -210,6 +210,9 @@ solution.write(fullfile(resultsDir,[sessionName,'_solution_step.sto']));
 % write study
 study.print(fullfile(resultsDir,[sessionName,'_study.xml']));
 
+% save script
+copyfile(fullfile(scriptDir,[scriptName,'.m']),fullfile(resultsDir,[sessionName,'_script.m']))
+
 % write grf
 externalForcesTableFlatStride = opensimMoco.createExternalLoadsTableForGait(model,fullStride,forceNamesRightFoot,forceNamesLeftFoot);
 STOFileAdapter.write(externalForcesTableFlatStride,fullfile(resultsDir,[sessionName,'_grf_stride.sto']));

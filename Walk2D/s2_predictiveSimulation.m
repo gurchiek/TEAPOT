@@ -172,6 +172,9 @@ STOFileAdapter.write(grf_stride_sync,fullfile(resultsDir,[sessionName,'_grf_stri
 % write study
 study.print(fullfile(resultsDir,[sessionName,'_study.xml']));
 
+% save script
+copyfile(fullfile(scriptDir,[scriptName,'.m']),fullfile(resultsDir,[sessionName,'_script.m']))
+
 % write muscle outputs
 outputs = StdVectorString;
 outputs.add('.*excitation');
