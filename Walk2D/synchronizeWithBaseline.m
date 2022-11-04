@@ -14,8 +14,9 @@ grfthresh = baselinegrf.getDependentColumn('ground_force_r_vy').get(0);
 
 % get instant closest to grfthresh
 icontact = crossing0(grf.getDependentColumn('ground_force_r_vy').getAsMat - grfthresh,{'n2p','z2p','n2z'});
-if length(icontact)>1; error('this should not happen...'); end
+icontact = icontact(1);
 if icontact == grf.getNumRows; return; end
+icontact = icontact - 1;
 
 % adjust
 iunsync = icontact;

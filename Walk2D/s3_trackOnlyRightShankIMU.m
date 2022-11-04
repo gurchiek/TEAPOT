@@ -224,28 +224,37 @@ solver.setGuessFile(fullfile('PrecomputedSolutionsToSpeedUpDemo',...
 
 %% SOLVE
 
-solution = study.solve;
+stride_unsync_traj = study.solve;
 
-% write solution
+%% OUTPUTS
+
+% write unsynhronized solution for step and stride
 resultsDir = fullfile(scriptDir,['OUTPUT_',sessionName]);
 mkdir(resultsDir)
-solution.write(fullfile(resultsDir,[sessionName,'_solution_stride.sto']));
+stride_unsync_traj.write(fullfile(resultsDir,[sessionName,'_solution_stride_unsynchronized.sto']));
 
-% write study
-study.print(fullfile(resultsDir,[sessionName,'_study.xml']));
-
-% save script
-copyfile(fullfile(scriptDir,[scriptName,'.m']),fullfile(resultsDir,[sessionName,'_script.m']))
-
-% write grf
+% get unsynchronized grf
 forceNamesRightFoot = StdVectorString();
 forceNamesRightFoot.add('contactHeel_r');
 forceNamesRightFoot.add('contactFront_r');
 forceNamesLeftFoot = StdVectorString();
 forceNamesLeftFoot.add('contactHeel_l');
 forceNamesLeftFoot.add('contactFront_l');
-externalForcesTableFlatStep = opensimMoco.createExternalLoadsTableForGait(model,solution,forceNamesRightFoot,forceNamesLeftFoot);
-STOFileAdapter.write(externalForcesTableFlatStep,fullfile(resultsDir,[sessionName,'_grf_stride.sto']));
+grf_stride_unsync = opensimMoco.createExternalLoadsTableForGait(model,stride_unsync_traj,forceNamesRightFoot,forceNamesLeftFoot);
+STOFileAdapter.write(grf_stride_unsync,fullfile(resultsDir,[sessionName,'_grf_stride_unsynchronized.sto']));
+
+% synchronize stride + write
+stride_unsync_table = TimeSeriesTable(fullfile(resultsDir,[sessionName,'_solution_stride_unsynchronized.sto']));
+stride_sync_table = synchronizeWithBaseline(stride_unsync_table,grf_stride_unsync,trackDir);
+STOFileAdapter.write(stride_sync_table,fullfile(resultsDir,[sessionName,'_solution_stride.sto']));
+stride_sync_traj = MocoTrajectory(fullfile(resultsDir,[sessionName,'_solution_stride.sto']));
+
+% write grf
+grf_stride_sync = opensimMoco.createExternalLoadsTableForGait(model,stride_sync_traj,forceNamesRightFoot,forceNamesLeftFoot);
+STOFileAdapter.write(grf_stride_sync,fullfile(resultsDir,[sessionName,'_grf_stride.sto']));
+
+% write study
+study.print(fullfile(resultsDir,[sessionName,'_study.xml']));
 
 % write muscle outputs
 outputs = StdVectorString;
@@ -268,5 +277,5 @@ outputs.add('.*passive_fiber_force_along_tendon');
 outputs.add('.*tendon_force');
 outputs.add('.*tendon_power');
 outputs.add('.*muscle_power');
-STOFileAdapter.write(study.analyze(solution, outputs),fullfile(resultsDir,[sessionName,'_outputs_stride.sto']));
+STOFileAdapter.write(study.analyze(stride_sync_traj, outputs),fullfile(resultsDir,[sessionName,'_outputs_stride.sto']));
 

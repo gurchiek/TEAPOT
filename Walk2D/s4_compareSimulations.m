@@ -21,8 +21,8 @@ labels = {'baseline','predict','IMU-tracking'};
 n = 3;
 
 % color
-color = [0 0 0; 140 21 21; 0 59 92]/255;
-alpha = [0.9; 0.75; 0.75];
+color = [0 0 0; 140 21 21; 45 136 246]/255;
+alpha = [0.9; 1.0; 1.0];
 color_spec = [color alpha];
 
 % line style
